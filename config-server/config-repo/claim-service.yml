@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: claim-service
+  datasource:
+    url: jdbc:mysql://mysql:3306/claims
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+      hibernate:
+        ddl-auto: none
+      database-platform: org.hibernate.dialect.MySQL8Dialect
+      show-sql: false
+
+server:
+  port: 8083

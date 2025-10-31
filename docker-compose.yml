@@ -1,0 +1,158 @@
+version: "3.9"
+
+services:
+  config-server-instance-one:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    container_name: config-server-container
+    ports:
+      - "8888:8888"
+    networks:
+      - healthcare-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 5s
+      retries: 12
+      timeout: 3s
+
+  discovery-service-instance-one:
+    build:
+      context: ./discovery-service
+      dockerfile: Dockerfile
+    container_name: discovery-service-container
+    ports:
+      - "8761:8761"
+    networks:
+      - healthcare-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 5s
+      retries: 12
+      timeout: 3s
+
+  api-gateway-instance-one:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway-container
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:  
+      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+    depends_on:
+      config-server-instance-one:
+        condition: service_healthy
+      discovery-service-instance-one:
+        condition: service_healthy
+    networks:
+      - healthcare-net
+
+  member-service-instance-one:
+    build:
+      context: ./member-service
+      dockerfile: Dockerfile
+    container_name: member-service-container
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+    depends_on:
+      config-server-instance-one:
+        condition: service_healthy
+      discovery-service-instance-one:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - healthcare-net
+
+  claim-service-instance-one:
+    build:
+      context: ./claim-service
+      dockerfile: Dockerfile
+    container_name: claim-service-container
+    restart: always
+    ports:
+      - "8083:8083"
+    environment:
+      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+    depends_on:
+      config-server-instance-one:
+        condition: service_healthy
+      discovery-service-instance-one:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    networks:
+      - healthcare-net
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: members
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - healthcare-net
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 12
+      timeout: 3s
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: claims
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    networks:
+      - healthcare-net
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 12
+      timeout: 3s
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper    
+
+networks:
+  healthcare-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  mysql-data:

@@ -1,0 +1,16 @@
+meta {
+  name: get member by not found
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8081/api/members/2fe5ea27-aa7f-4d7f-a75a-4ffd2e90e99e
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

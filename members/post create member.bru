@@ -1,0 +1,28 @@
+meta {
+  name: post create member
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8081/api/members
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "alejandro",
+    "email": "ale@gmail.com",
+    "age": 20
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

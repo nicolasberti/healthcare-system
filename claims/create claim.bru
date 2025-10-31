@@ -1,0 +1,28 @@
+meta {
+  name: create claim
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8083/api/v2/claims
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "policyId": "fab8087f-94e4-4bce-b1a9-38ef30376973",
+    "amount": 250.50,
+    "status": "PENDING"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

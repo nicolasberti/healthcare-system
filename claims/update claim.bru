@@ -1,0 +1,26 @@
+meta {
+  name: update claim
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8083/api/v2/claims/81b11a0a-8432-4392-9f33-07860eba392a
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "status": "APPROVED"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

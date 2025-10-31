@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: claim-service
+  profiles:
+      active: prod
+  config:
+      import: configserver:${CONFIG_SERVER_URL}
+      fail-fast: true
+  retry:
+    initial-interval: 3000
+    max-attempts: 10
+    multiplier: 1.5

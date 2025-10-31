@@ -1,0 +1,24 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: member-service
+          uri: lb://member-service
+          predicates:
+            - Path=/api/members/**
+        - id: claim-service
+          uri: lb://claim-service
+          predicates:
+            - Path=/api/claims/**
+          filters:
+            - RewritePath=/api/claims(?<segment>/?.*), /api/v2/claims$\{segment}
+
+    discovery:
+      locator:
+        enabled: true
+        lower-case-service-id: true
+        

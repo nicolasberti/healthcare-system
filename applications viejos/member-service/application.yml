@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: member-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+eureka:
+  instance:
+      prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: ${DISCOVERY_SERVICE_URL}
+    register-with-eureka: true
+    fetch-registry: true
+  
+server:
+  port: 8081  
