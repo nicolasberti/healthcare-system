@@ -10,12 +10,14 @@ management:
     web:
       exposure:
         include: "*"
+# kafka:
+#   bootstrap-servers: kafka:9092
 
 eureka:
   instance:
       prefer-ip-address: true
   client:
     service-url:
-      defaultZone: ${DISCOVERY_SERVICE_URL}
+      defaultZone: http://discovery-service-instance-one:8761/eureka
     register-with-eureka: true
     fetch-registry: true
