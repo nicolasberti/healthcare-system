@@ -49,25 +49,27 @@ services:
     networks:
       - healthcare-net
 
-  # member-service-instance-one:
-  #   build:
-  #     context: ./member-service
-  #     dockerfile: Dockerfile
-  #   container_name: member-service-container
-  #   restart: always
-  #   ports:
-  #     - "8081:8081"
-  #   environment:
-  #     - CONFIG_SERVER_URL=http://config-server-instance-one:8888
-  #   depends_on:
-  #     config-server-instance-one:
-  #       condition: service_healthy
-  #     discovery-service-instance-one:
-  #       condition: service_healthy
-  #     postgres:
-  #       condition: service_healthy
-  #   networks:
-  #     - healthcare-net
+  member-service-instance-one:
+    build:
+      context: ./member-service
+      dockerfile: Dockerfile
+    container_name: member-service-container
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+    depends_on:
+      config-server-instance-one:
+        condition: service_healthy
+      discovery-service-instance-one:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - healthcare-net
 
   claim-service-instance-one:
     build:
@@ -85,6 +87,26 @@ services:
       discovery-service-instance-one:
         condition: service_healthy
       mysql:
+        condition: service_healthy
+    networks:
+      - healthcare-net
+
+  notification-service-instance-one:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service-container
+    restart: always
+    ports:
+      - "8138:8138"
+    environment:
+      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+    depends_on:
+      config-server-instance-one:
+        condition: service_healthy
+      discovery-service-instance-one:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     networks:
       - healthcare-net
@@ -128,7 +150,7 @@ services:
       timeout: 3s
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.6.1
+    image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -136,22 +158,30 @@ services:
     ports:
       - "2181:2181"
     networks:
-      - healthcare-net  
+      - healthcare-net
 
   kafka:
-    image: confluentinc/cp-kafka:7.6.1
+    image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
     ports:
       - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
-      - zookeeper   
+      - zookeeper
     networks:
-      - healthcare-net   
+      - healthcare-net
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 12
 
 networks:
   healthcare-net:
