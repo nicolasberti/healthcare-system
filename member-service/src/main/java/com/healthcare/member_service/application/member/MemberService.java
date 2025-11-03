@@ -7,6 +7,7 @@ import com.healthcare.member_service.domain.model.member.exception.MemberNotFoun
 import com.healthcare.member_service.domain.model.member.valueobject.Age;
 import com.healthcare.member_service.domain.model.member.valueobject.Email;
 import com.healthcare.member_service.domain.model.member.valueobject.MemberId;
+import com.healthcare.member_service.domain.model.member.valueobject.Phone;
 import com.healthcare.member_service.domain.port.in.MemberUseCase;
 import com.healthcare.member_service.domain.port.out.DomainEventPublisher;
 import com.healthcare.member_service.domain.port.out.MemberRepository;
@@ -25,14 +26,22 @@ public class MemberService implements MemberUseCase {
 
     @Override
     public Member createMember(CreateMember createMember) {
-        MemberAggregate memberAggregate = MemberAggregate.createMember(new MemberId(), createMember.getName(), new Email(createMember.getEmail()), new Age(createMember.getAge()));
+        MemberAggregate memberAggregate = MemberAggregate.createMember(
+                new MemberId(), createMember.getName(),
+                new Email(createMember.getEmail()),
+                new Age(createMember.getAge()),
+                new Phone(createMember.getPhone())
+        );
+
+        // TODO: Si existe (email unico o telefono unico) lanzar excepcion MemberAlreadyExistsException
+        Member member = memberRepository.save(memberAggregate.getMember());
 
         // TODO: Agregar outbox pattern
         memberAggregate.getDomainEvents().forEach(event ->
                 domainEventPublisher.publish("Member", memberAggregate.getMember().getId(), event)
         );
 
-        return memberRepository.save(memberAggregate.getMember());
+        return member;
     }
 
     @Override

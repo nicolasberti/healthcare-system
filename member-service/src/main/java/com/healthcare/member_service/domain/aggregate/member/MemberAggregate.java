@@ -6,6 +6,7 @@ import com.healthcare.member_service.domain.model.member.Member;
 import com.healthcare.member_service.domain.model.member.valueobject.Age;
 import com.healthcare.member_service.domain.model.member.valueobject.Email;
 import com.healthcare.member_service.domain.model.member.valueobject.MemberId;
+import com.healthcare.member_service.domain.model.member.valueobject.Phone;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,10 +20,10 @@ public class MemberAggregate {
         this.domainEvents = domainEvents;
     }
 
-    public static MemberAggregate createMember(MemberId id, String name, Email email, Age age) {
-        Member member = new Member(id, name, email, age);
+    public static MemberAggregate createMember(MemberId id, String name, Email email, Age age, Phone phone) {
+        Member member = new Member(id, name, email, age, phone);
 
-        MemberCreated event = new MemberCreated(name, email.value(), age.value());
+        MemberCreated event = new MemberCreated(id.getValue().toString(), name, email.value(), age.value(), phone.value());
         return new MemberAggregate(member, Collections.singletonList(event));
     }
 

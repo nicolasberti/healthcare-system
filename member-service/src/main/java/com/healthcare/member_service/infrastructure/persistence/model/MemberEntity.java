@@ -23,9 +23,12 @@ public class MemberEntity {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "age")
     private Integer age;
+
+    @Column(name = "phone", unique = true)
+    private String phone;
 }

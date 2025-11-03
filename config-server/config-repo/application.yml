@@ -28,6 +28,8 @@ kafka:
   bootstrap-servers: kafka:29092
   member:
     topic: member-topic
+  claim:
+    topic: claim-topic  
 
 eureka:
   instance:

@@ -6,7 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class MemberCreated implements MemberDomainEvent {
+    private final String id;
     private final String name;
     private final String email;
     private final int age;
+    private final String phone;
 }

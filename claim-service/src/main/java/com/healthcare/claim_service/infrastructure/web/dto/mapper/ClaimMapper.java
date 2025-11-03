@@ -7,7 +7,7 @@ public class ClaimMapper {
     public static ClaimResponse claimToClaimResponse(Claim claim) {
         return ClaimResponse.builder()
                 .id(claim.getId().getValue().toString())
-                .policyId(claim.getPolicyId().getValue().toString())
+                .memberId(claim.getMemberId())
                 .amount(claim.getAmount())
                 .status(claim.getStatus().toString())
                 .build();

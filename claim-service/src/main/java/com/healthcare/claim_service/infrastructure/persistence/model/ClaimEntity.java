@@ -19,8 +19,8 @@ public class ClaimEntity {
     @Column(name = "id")
     private String id;
 
-    @Column(name = "policy_id")
-    private String policyId;
+    @Column(name = "member_id")
+    private String memberId;
 
     @Column(name = "amount")
     private double amount;

@@ -1,6 +1,7 @@
 package com.healthcare.member_service.infrastructure.persistence;
 
 import com.healthcare.member_service.domain.model.member.Member;
+import com.healthcare.member_service.domain.model.member.exception.MemberAlreadyExistsException;
 import com.healthcare.member_service.domain.model.member.valueobject.MemberId;
 import com.healthcare.member_service.domain.port.out.MemberRepository;
 import com.healthcare.member_service.infrastructure.persistence.mapper.MemberMapper;
@@ -8,6 +9,7 @@ import com.healthcare.member_service.infrastructure.persistence.model.MemberEnti
 import com.healthcare.member_service.infrastructure.persistence.repository.MemberRepositoryJPA;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +22,13 @@ public class MemberResponsitoryAdapter implements MemberRepository {
 
     @Override
     public Member save(Member member) {
-        MemberEntity memberEntity = MemberMapper.memberToMemberEntity(member);
-        memberRepositoryJPA.save(memberEntity);
-        return member;
+        try {
+            MemberEntity memberEntity = MemberMapper.memberToMemberEntity(member);
+            memberRepositoryJPA.save(memberEntity);
+            return member;
+        } catch(DataIntegrityViolationException exception) {
+            throw new MemberAlreadyExistsException("Member already exists");
+        }
     }
 
     @Override
@@ -42,9 +48,13 @@ public class MemberResponsitoryAdapter implements MemberRepository {
     // TODO: Está mal, arreglar.
     @Override
     public Member update(MemberId id, Member member) {
-        MemberEntity memberEntity = MemberMapper.memberToMemberEntity(member);
-        memberRepositoryJPA.save(memberEntity);
-        return member;
+        try {
+            MemberEntity memberEntity = MemberMapper.memberToMemberEntity(member);
+            memberRepositoryJPA.save(memberEntity);
+            return member;
+        } catch(DataIntegrityViolationException exception) {
+            throw new MemberAlreadyExistsException("Member already exists");
+        }
     }
 
     @Override

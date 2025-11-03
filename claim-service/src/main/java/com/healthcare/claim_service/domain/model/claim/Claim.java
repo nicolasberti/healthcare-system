@@ -2,7 +2,6 @@ package com.healthcare.claim_service.domain.model.claim;
 
 import com.healthcare.claim_service.domain.model.claim.valueobject.ClaimId;
 import com.healthcare.claim_service.domain.model.claim.valueobject.ClaimStatus;
-import com.healthcare.claim_service.domain.model.claim.valueobject.PolicyId;
 import lombok.*;
 
 @AllArgsConstructor
@@ -12,7 +11,7 @@ import lombok.*;
 @Setter
 public class Claim {
     private ClaimId id;
-    private PolicyId policyId;
+    private String memberId;
     private double amount;
     private ClaimStatus status;
 }

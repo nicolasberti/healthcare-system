@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class ClaimResponse {
     private String id;
-    private String policyId;
+    private String memberId;
     private double amount;
     private String status;
 }

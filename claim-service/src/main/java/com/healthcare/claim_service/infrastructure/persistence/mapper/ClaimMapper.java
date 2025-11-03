@@ -11,7 +11,7 @@ public class ClaimMapper {
     public static ClaimEntity claimToClaimEntity(Claim claim) {
         return ClaimEntity.builder()
                 .id(claim.getId().getValue().toString())
-                .policyId(claim.getPolicyId().getValue().toString())
+                .memberId(claim.getMemberId())
                 .amount(claim.getAmount())
                 .status(claim.getStatus().toString())
                 .build();
@@ -20,7 +20,7 @@ public class ClaimMapper {
     public static Claim claimEntityToClaim(ClaimEntity claimEntity) {
         return Claim.builder()
                 .id(new ClaimId(claimEntity.getId()))
-                .policyId(new PolicyId(claimEntity.getPolicyId()))
+                .memberId(claimEntity.getMemberId())
                 .amount(claimEntity.getAmount())
                 .status(ClaimStatus.transformStatus(claimEntity.getStatus()))
                 .build();

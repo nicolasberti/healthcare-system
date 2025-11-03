@@ -6,7 +6,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class CreateClaim {
-    private String policyId;
+    private String memberId;
     private double amount;
     private String status;
 }

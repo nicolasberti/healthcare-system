@@ -1,0 +1,16 @@
+{
+  "specversion" : "1.0",
+  "id" : "f2513cd8-2d3f-4c71-a3a1-7e96d370ba09",
+  "source" : "https://member-service/Member/com.healthcare.member_service.domain.model.member.valueobject.MemberId@7d6dee1f",
+  "type" : "MemberCreated",
+  "datacontenttype" : "application/json",
+  "aggregateid" : "com.healthcare.member_service.domain.model.member.valueobject.MemberId@7d6dee1f",
+  "aggregatetype" : "Member",
+  "data" : {
+    "id" : "8d5fb9fd-203a-403d-a718-3d0fc8d3684b",
+    "name" : "alejandro",
+    "email" : "ale@gmail.com",
+    "age" : 20,
+    "phone" : "2920001122"
+  }
+}
