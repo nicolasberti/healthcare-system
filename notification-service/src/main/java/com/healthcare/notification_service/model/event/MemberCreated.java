@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MemberCreatedEvent {
+public class MemberCreated {
+    private String id;
     private String name;
     private String email;
     private int age;
+    private String phone;
 }

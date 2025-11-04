@@ -1,33 +1,33 @@
-# Etapa 1: Build
-FROM eclipse-temurin:21-jdk-alpine AS build
+# Etapa 1: Build (usar JDK completo basado en Debian)
+FROM eclipse-temurin:21-jdk AS build
 
-# Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiamos archivos de Maven/Gradle para caching de dependencias
+# Copiamos archivos necesarios para caching de dependencias
 COPY pom.xml ./
 COPY mvnw ./
 COPY .mvn .mvn
 RUN ./mvnw dependency:go-offline
 
-# Copiamos el resto del código
+# Copiamos el código fuente
 COPY src ./src
 
-# Construimos el jar
+# Construimos el jar (sin correr tests)
 RUN ./mvnw clean package -DskipTests
-RUN apk add --no-cache curl
 
-# Etapa 2: Runtime
+# Etapa 2: Runtime (ligera y optimizada)
 FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Copiamos el jar construido desde la etapa build
+# Copiamos el jar construido desde la etapa anterior
 COPY --from=build /app/target/*.jar app.jar
+
+# Dependencias livianas (solo si las necesitás)
 RUN apk add --no-cache curl
 
-# Exponemos el puerto (ejemplo Eureka 8761)
+# Puerto que expone el cliente
 EXPOSE 8138
 
-# Comando para ejecutar la app
+# Comando para ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]

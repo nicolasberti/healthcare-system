@@ -5,6 +5,6 @@ import com.healthcare.member_service.infrastructure.web.dto.query.MemberResponse
 
 public class MemberMapper {
     public static MemberResponse memberToMemberResponse(Member member){
-        return new MemberResponse(member.getName(), member.getEmail().value(), member.getAge().value(), member.getPhone().value());
+        return new MemberResponse(member.getId().getValue().toString(), member.getName(), member.getEmail().value(), member.getAge().value(), member.getPhone().value());
     }
 }

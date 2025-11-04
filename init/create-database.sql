@@ -1,0 +1,2 @@
+CREATE DATABASE notifications;
+CREATE DATABASE members;

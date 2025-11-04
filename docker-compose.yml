@@ -57,6 +57,7 @@ services:
     restart: always
     ports:
       - "8081:8081"
+      - "9090:9090"
     environment:
       - CONFIG_SERVER_URL=http://config-server-instance-one:8888
     depends_on:
@@ -106,6 +107,8 @@ services:
         condition: service_healthy
       discovery-service-instance-one:
         condition: service_healthy
+      postgres:
+        condition: service_healthy  
       kafka:
         condition: service_healthy
     networks:
@@ -115,7 +118,7 @@ services:
     image: postgres:15
     container_name: postgres
     environment:
-      POSTGRES_DB: members
+      POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -124,6 +127,7 @@ services:
       - healthcare-net
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s

@@ -13,7 +13,6 @@ spring:
       acks: all
       retries: 3
     consumer:
-      group-id: consumer-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer  
@@ -30,6 +29,8 @@ kafka:
     topic: member-topic
   claim:
     topic: claim-topic  
+    consumer:
+      group-id: notification-group
 
 eureka:
   instance:
