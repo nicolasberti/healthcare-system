@@ -41,13 +41,20 @@ public class MemberContactService {
     }
 
     public MemberContact getById(String id) {
-        System.out.println("getById id : -> " + id);
-        MemberContactResponse memberContactResponse = getMemberContactById(id);
-        return MemberContact.builder()
-                .id(memberContactResponse.getId())
-                .email(memberContactResponse.getEmail())
-                .phone(memberContactResponse.getPhone())
-                .build();
+        Optional<MemberContact> memberContact = memberContactRepository.findById(id);
+        if(memberContact.isPresent())
+            return memberContact.get();
+        else {
+            MemberContactResponse memberContactResponse = getMemberContactById(id);
+            MemberContact memberContactNew = MemberContact.builder()
+                                                .id(memberContactResponse.getId())
+                                                .email(memberContactResponse.getEmail())
+                                                .phone(memberContactResponse.getPhone())
+                                                .build();
+            // TODO: se podria guardar en otro hilo y devolver el member contact para optimizar -> activando virtual threads
+            return memberContactRepository.save(memberContactNew);                                  
+        }
+        
     }
 
     public MemberContactResponse getMemberContactById(String id) {
