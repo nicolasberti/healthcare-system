@@ -1,0 +1,20 @@
+meta {
+  name: upload file
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8085/api/documents/upload
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  file: @file(/home/nicolas/Desktop/Screenshot from 2025-11-07 16-27-49.png)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

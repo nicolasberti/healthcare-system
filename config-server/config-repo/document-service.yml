@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: document-service
+  datasource:
+    url: jdbc:postgresql://postgres:5432/documents
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+server:
+  port: 8085
+
+aws:
+  s3:
+    endpoint: http://localstack:4566
+    region: us-east-1
+    access-key: test
+    secret-key: test
+    bucket: claims  

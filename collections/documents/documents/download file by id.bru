@@ -1,0 +1,16 @@
+meta {
+  name: download file by id
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8085/api/documents/1c10ba09-9db5-4748-b883-ba6eda9dad54/download
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

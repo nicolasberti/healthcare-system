@@ -16,13 +16,25 @@ spring:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer  
+  tracing:
+    sampling:
+      probability: 1.0 # 100% de las requests trazadas (ajustá a 0.1 o 0.01 en producción)    
 
 management:
+  tracing:
+    propagation:
+      type: W3C  
   endpoints:
     web:
       exposure:
         include: "*"
-        
+
+  zipkin:
+    base-url: http://zipkin:9411
+    enabled: true
+    sender:
+      type: web
+
 kafka:
   bootstrap-servers: kafka:29092
   member:
