@@ -16,24 +16,24 @@ spring:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer  
-  tracing:
-    sampling:
-      probability: 1.0 # 100% de las requests trazadas (ajustá a 0.1 o 0.01 en producción)    
 
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},traceId=%X{traceId:-},spanId=%X{spanId:-}]"
+  
 management:
   tracing:
+    sampling:
+      probability: 1.0  # 1.0 = 100% de las trazas (ajustar en producción)
     propagation:
-      type: W3C  
+      type: w3c  # Formato W3C TraceContext
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans  # URL de tu servidor Zipkin
   endpoints:
     web:
       exposure:
         include: "*"
-
-  zipkin:
-    base-url: http://zipkin:9411
-    enabled: true
-    sender:
-      type: web
 
 kafka:
   bootstrap-servers: kafka:29092

@@ -29,7 +29,7 @@ COPY --from=build /app/target/*.jar app.jar
 RUN apk add --no-cache curl
 
 # Exponemos el puerto (ejemplo Eureka 8761)
-EXPOSE 8080
+EXPOSE 8000
 
 # Comando para ejecutar la app
 ENTRYPOINT ["java", "-jar", "app.jar"]

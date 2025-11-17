@@ -1,3 +1,4 @@
 CREATE DATABASE notifications;
 CREATE DATABASE members;
 CREATE DATABASE documents;
+CREATE DATABASE keycloak;

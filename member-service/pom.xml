@@ -33,6 +33,16 @@
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
     <dependencies>
+		<!-- Maven -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-brave</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.zipkin.reporter2</groupId>
+			<artifactId>zipkin-reporter-brave</artifactId>
+		</dependency>
+
         <!-- gRPC Core -->
         <dependency>
             <groupId>io.grpc</groupId>

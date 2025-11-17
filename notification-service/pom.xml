@@ -32,6 +32,16 @@
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
 	<dependencies>
+		<!-- Maven -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-brave</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.zipkin.reporter2</groupId>
+			<artifactId>zipkin-reporter-brave</artifactId>
+		</dependency>
+
         <!-- gRPC Spring Boot Starter (moderno y compatible con Spring Boot 3.x y Java 21) -->
         <dependency>
             <groupId>io.github.lognet</groupId>

@@ -1,6 +1,49 @@
 version: "3.9"
 
 services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KC_HOSTNAME: localhost
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command:
+      - start-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - healthcare-net  
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9411/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - healthcare-net  
+
   config-server-instance-one:
     build:
       context: ./config-server
@@ -38,7 +81,7 @@ services:
     container_name: api-gateway-container
     restart: always
     ports:
-      - "8080:8080"
+      - "8000:8000"
     environment:  
       - CONFIG_SERVER_URL=http://config-server-instance-one:8888
     depends_on:
@@ -46,6 +89,8 @@ services:
         condition: service_healthy
       discovery-service-instance-one:
         condition: service_healthy
+      zipkin:
+        condition: service_healthy  
     networks:
       - healthcare-net
 
@@ -69,6 +114,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      zipkin:
+        condition: service_healthy    
     networks:
       - healthcare-net
 
@@ -89,6 +136,8 @@ services:
         condition: service_healthy
       mysql:
         condition: service_healthy
+      zipkin:
+        condition: service_healthy    
     networks:
       - healthcare-net
 
@@ -103,6 +152,8 @@ services:
     environment:
       - CONFIG_SERVER_URL=http://config-server-instance-one:8888
     depends_on:
+      zipkin:
+        condition: service_healthy  
       config-server-instance-one:
         condition: service_healthy
       discovery-service-instance-one:
@@ -125,6 +176,8 @@ services:
     environment:
       - CONFIG_SERVER_URL=http://config-server-instance-one:8888
     depends_on:
+      zipkin:
+        condition: service_healthy  
       config-server-instance-one:
         condition: service_healthy
       discovery-service-instance-one:
