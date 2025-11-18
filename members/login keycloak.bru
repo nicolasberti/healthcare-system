@@ -1,0 +1,28 @@
+meta {
+  name: login keycloak
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8080/realms/api-gateway-realm/protocol/openid-connect/token
+  body: formUrlEncoded
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/x-www-form-urlencoded
+}
+
+body:form-urlencoded {
+  client_id: api-gateway
+  client_secret: 5VR0PzIV3BEWvxmBStNMRp2ZrIYIrtUq
+  grant_type: password
+  password: holamundo
+  username: nico
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}

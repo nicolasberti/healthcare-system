@@ -1,6 +1,11 @@
 server:
   port: 8000
 spring:
+  security:
+      oauth2:
+        resourceserver:
+          jwt:
+            issuer-uri: http://keycloak:8080/realms/api-gateway-realm
   application:
     name: api-gateway
   cloud:
@@ -16,9 +21,23 @@ spring:
             - Path=/api/claims/**
           filters:
             - RewritePath=/api/claims(?<segment>/?.*), /api/v2/claims$\{segment}
+        - id: document-service
+          uri: lb://document-service
+          predicates:
+            - Path=/api/documents/**
 
     discovery:
       locator:
         enabled: true
         lower-case-service-id: true
-        
+
+keycloak:
+  auth-server-url: http://keycloak:8080/auth
+  realm: api-gateway-realm
+  resource: api-gateway
+
+logging:
+  level:
+    root: INFO
+    com.healthcare.api_gateway: DEBUG
+    org.springframework.security: DEBUG

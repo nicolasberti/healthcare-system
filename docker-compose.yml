@@ -9,7 +9,7 @@ services:
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: postgres
-      KC_HOSTNAME: localhost
+      KC_HOSTNAME: keycloak
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     command:
@@ -289,7 +289,6 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
       - healthcare-net
-
 
 networks:
   healthcare-net:
