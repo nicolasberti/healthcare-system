@@ -24,7 +24,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 60s
     networks:
       - healthcare-net  
 
@@ -36,13 +36,13 @@ services:
     environment:
       - STORAGE_TYPE=mem
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9411/health"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9411/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 15s
+      retries: 10
+      start_period: 60s
     networks:
-      - healthcare-net  
+      - healthcare-net
 
   config-server-instance-one:
     build:
@@ -58,6 +58,7 @@ services:
       interval: 5s
       retries: 12
       timeout: 3s
+      start_period: 60s
 
   discovery-service-instance-one:
     build:
@@ -73,6 +74,7 @@ services:
       interval: 5s
       retries: 12
       timeout: 3s
+      start_period: 60s
 
   api-gateway-instance-one:
     build:
