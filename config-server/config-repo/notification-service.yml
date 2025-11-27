@@ -19,32 +19,43 @@ grpc:
     memberService:
       address: static://member-service-instance-one:9090
       negotiationType: plaintext  
+      enable-keep-alive: true
+      keep-alive-without-calls: true
 
 resilience4j:
   circuitbreaker:
     configs:
       default:
-        registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
-        automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 10s
-        failureRateThreshold: 50
-        slowCallRateThreshold: 100
-        slowCallDurationThreshold: 2s
-        recordExceptions:
+        register-health-indicator: true
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        minimum-number-of-calls: 5
+        record-exceptions:
           - io.grpc.StatusRuntimeException
-          - java.net.UnknownHostException
-          - java.net.ConnectException
-          - java.io.IOException
           - java.lang.RuntimeException
-        
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - java.nio.channels.UnresolvedAddressException
     instances:
       memberService:
-        baseConfig: default
+        base-config: default
+        failure-rate-threshold: 60 
+
+  retry:
+    instances:
+      memberService:
+        max-attempts: 3
+        wait-duration: 2s
+
+  timelimiter:
+    instances:
+      memberService:
+        timeout-duration: 10s
 
 logging:
   level:
-    com.healthcare.notification_service.service: DEBUG
-    io.github.resilience4j: DEBUG      
+    com.healthcare.notification_service.service.MemberContactService: DEBUG
+    io.github.resilience4j: DEBUG
+    net.devh.boot.grpc: WARN      
