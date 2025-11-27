@@ -19,3 +19,32 @@ grpc:
     memberService:
       address: static://member-service-instance-one:9090
       negotiationType: plaintext  
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 2s
+        recordExceptions:
+          - io.grpc.StatusRuntimeException
+          - java.net.UnknownHostException
+          - java.net.ConnectException
+          - java.io.IOException
+          - java.lang.RuntimeException
+        
+    instances:
+      memberService:
+        baseConfig: default
+
+logging:
+  level:
+    com.healthcare.notification_service.service: DEBUG
+    io.github.resilience4j: DEBUG      

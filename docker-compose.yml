@@ -1,32 +1,32 @@
 version: "3.9"
 
 services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.0
-    container_name: keycloak
-    environment:
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-      KC_DB_USERNAME: postgres
-      KC_DB_PASSWORD: postgres
-      KC_HOSTNAME: keycloak
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    command:
-      - start-dev
-    depends_on:
-      postgres:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
-    networks:
-      - healthcare-net  
+  # keycloak:
+  #   image: quay.io/keycloak/keycloak:26.0
+  #   container_name: keycloak
+  #   environment:
+  #     KC_DB: postgres
+  #     KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+  #     KC_DB_USERNAME: postgres
+  #     KC_DB_PASSWORD: postgres
+  #     KC_HOSTNAME: keycloak
+  #     KEYCLOAK_ADMIN: admin
+  #     KEYCLOAK_ADMIN_PASSWORD: admin
+  #   command:
+  #     - start-dev
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8080:8080"
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 60s
+  #   networks:
+  #     - healthcare-net  
 
   zipkin:
     image: openzipkin/zipkin:latest
@@ -76,50 +76,50 @@ services:
       timeout: 3s
       start_period: 60s
 
-  api-gateway-instance-one:
-    build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
-    container_name: api-gateway-container
-    restart: always
-    ports:
-      - "8000:8000"
-    environment:  
-      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
-    depends_on:
-      config-server-instance-one:
-        condition: service_healthy
-      discovery-service-instance-one:
-        condition: service_healthy
-      zipkin:
-        condition: service_healthy  
-    networks:
-      - healthcare-net
+  # api-gateway-instance-one:
+  #   build:
+  #     context: ./api-gateway
+  #     dockerfile: Dockerfile
+  #   container_name: api-gateway-container
+  #   restart: always
+  #   ports:
+  #     - "8000:8000"
+  #   environment:  
+  #     - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+  #   depends_on:
+  #     config-server-instance-one:
+  #       condition: service_healthy
+  #     discovery-service-instance-one:
+  #       condition: service_healthy
+  #     zipkin:
+  #       condition: service_healthy  
+  #   networks:
+  #     - healthcare-net
 
-  member-service-instance-one:
-    build:
-      context: ./member-service
-      dockerfile: Dockerfile
-    container_name: member-service-container
-    restart: always
-    ports:
-      - "8081:8081"
-      - "9090:9090"
-    environment:
-      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
-    depends_on:
-      config-server-instance-one:
-        condition: service_healthy
-      discovery-service-instance-one:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      zipkin:
-        condition: service_healthy    
-    networks:
-      - healthcare-net
+  # member-service-instance-one:
+  #   build:
+  #     context: ./member-service
+  #     dockerfile: Dockerfile
+  #   container_name: member-service-container
+  #   restart: always
+  #   ports:
+  #     - "8081:8081"
+  #     - "9090:9090"
+  #   environment:
+  #     - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+  #   depends_on:
+  #     config-server-instance-one:
+  #       condition: service_healthy
+  #     discovery-service-instance-one:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_healthy
+  #     kafka:
+  #       condition: service_healthy
+  #     zipkin:
+  #       condition: service_healthy    
+  #   networks:
+  #     - healthcare-net
 
   claim-service-instance-one:
     build:
@@ -167,29 +167,29 @@ services:
     networks:
       - healthcare-net
 
-  document-service-instance-one:
-    build:
-      context: ./document-service
-      dockerfile: Dockerfile
-    container_name: document-service-container
-    restart: always
-    ports:
-      - "8085:8085"
-    environment:
-      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
-    depends_on:
-      zipkin:
-        condition: service_healthy  
-      config-server-instance-one:
-        condition: service_healthy
-      discovery-service-instance-one:
-        condition: service_healthy  
-      localstack:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    networks:
-      - healthcare-net
+  # document-service-instance-one:
+  #   build:
+  #     context: ./document-service
+  #     dockerfile: Dockerfile
+  #   container_name: document-service-container
+  #   restart: always
+  #   ports:
+  #     - "8085:8085"
+  #   environment:
+  #     - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+  #   depends_on:
+  #     zipkin:
+  #       condition: service_healthy  
+  #     config-server-instance-one:
+  #       condition: service_healthy
+  #     discovery-service-instance-one:
+  #       condition: service_healthy  
+  #     localstack:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - healthcare-net
 
   postgres:
     image: postgres:15
@@ -264,31 +264,31 @@ services:
       timeout: 10s
       retries: 12
 
-  localstack:
-    image: localstack/localstack:latest
-    container_name: localstack
-    ports:
-      - "4566:4566"        # Puerto principal (gateway para todos los servicios)
-      - "4571:4571"        # (opcional) puerto legacy
-    environment:
-      - SERVICES=s3                        # solo S3 (podés agregar más: s3,lambda,dynamodb,...)
-      - DEBUG=1
-      - DATA_DIR=/var/lib/localstack/data  # cambio de ruta interna
-      - LOCALSTACK_PERSISTENCE=1
-      - AWS_DEFAULT_REGION=us-east-1
-      - LOCALSTACK_VOLUME_DIR=/var/lib/localstack
-    healthcheck:
-      test: ["CMD", "awslocal", "s3", "ls"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
-    volumes:
-      - "./localstack_data:/var/lib/localstack"   # persistencia local (ya no /tmp)
-      - "./scripts/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh" # inicialización del bucket
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    networks:
-      - healthcare-net
+  # localstack:
+  #   image: localstack/localstack:latest
+  #   container_name: localstack
+  #   ports:
+  #     - "4566:4566"        # Puerto principal (gateway para todos los servicios)
+  #     - "4571:4571"        # (opcional) puerto legacy
+  #   environment:
+  #     - SERVICES=s3                        # solo S3 (podés agregar más: s3,lambda,dynamodb,...)
+  #     - DEBUG=1
+  #     - DATA_DIR=/var/lib/localstack/data  # cambio de ruta interna
+  #     - LOCALSTACK_PERSISTENCE=1
+  #     - AWS_DEFAULT_REGION=us-east-1
+  #     - LOCALSTACK_VOLUME_DIR=/var/lib/localstack
+  #   healthcheck:
+  #     test: ["CMD", "awslocal", "s3", "ls"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 15s
+  #   volumes:
+  #     - "./localstack_data:/var/lib/localstack"   # persistencia local (ya no /tmp)
+  #     - "./scripts/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh" # inicialización del bucket
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
+  #   networks:
+  #     - healthcare-net
 
 networks:
   healthcare-net:
