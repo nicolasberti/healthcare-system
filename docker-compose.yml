@@ -24,7 +24,7 @@ services:
   #     interval: 10s
   #     timeout: 5s
   #     retries: 5
-  #     start_period: 60s
+  #     start_period: 120s
   #   networks:
   #     - healthcare-net  
 
@@ -40,7 +40,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 60s
+      start_period: 120s
     networks:
       - healthcare-net
 
@@ -58,7 +58,7 @@ services:
       interval: 5s
       retries: 12
       timeout: 3s
-      start_period: 60s
+      start_period: 120s
 
   discovery-service-instance-one:
     build:
@@ -74,7 +74,7 @@ services:
       interval: 5s
       retries: 12
       timeout: 3s
-      start_period: 60s
+      start_period: 120s
 
   # api-gateway-instance-one:
   #   build:
@@ -96,15 +96,62 @@ services:
   #   networks:
   #     - healthcare-net
 
-  # member-service-instance-one:
+  member-service-instance-one:
+    build:
+      context: ./member-service
+      dockerfile: Dockerfile
+    container_name: member-service-container
+    restart: always
+    ports:
+      - "8081:8081"
+      - "9090:9090"
+    environment:
+      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+    depends_on:
+      config-server-instance-one:
+        condition: service_healthy
+      discovery-service-instance-one:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      zipkin:
+        condition: service_healthy    
+    networks:
+      - healthcare-net
+
+  security-service:
+    build:
+      context: ./security-service
+      dockerfile: Dockerfile
+    container_name: security-service-container
+    restart: always
+    ports:
+      - "8099:8099"
+    environment:
+      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+    depends_on:
+      config-server-instance-one:
+        condition: service_healthy
+      discovery-service-instance-one:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      # En caso de que lance error, primero hay que iniciar la DB en Postgres (members)
+      zipkin:
+        condition: service_healthy    
+    networks:
+      - healthcare-net    
+
+  # claim-service-instance-one:
   #   build:
-  #     context: ./member-service
+  #     context: ./claim-service
   #     dockerfile: Dockerfile
-  #   container_name: member-service-container
+  #   container_name: claim-service-container
   #   restart: always
   #   ports:
-  #     - "8081:8081"
-  #     - "9090:9090"
+  #     - "8083:8083"
   #   environment:
   #     - CONFIG_SERVER_URL=http://config-server-instance-one:8888
   #   depends_on:
@@ -112,60 +159,36 @@ services:
   #       condition: service_healthy
   #     discovery-service-instance-one:
   #       condition: service_healthy
-  #     postgres:
-  #       condition: service_healthy
-  #     kafka:
+  #     mysql:
   #       condition: service_healthy
   #     zipkin:
   #       condition: service_healthy    
   #   networks:
   #     - healthcare-net
 
-  claim-service-instance-one:
-    build:
-      context: ./claim-service
-      dockerfile: Dockerfile
-    container_name: claim-service-container
-    restart: always
-    ports:
-      - "8083:8083"
-    environment:
-      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
-    depends_on:
-      config-server-instance-one:
-        condition: service_healthy
-      discovery-service-instance-one:
-        condition: service_healthy
-      mysql:
-        condition: service_healthy
-      zipkin:
-        condition: service_healthy    
-    networks:
-      - healthcare-net
-
-  notification-service-instance-one:
-    build:
-      context: ./notification-service
-      dockerfile: Dockerfile
-    container_name: notification-service-container
-    restart: always
-    ports:
-      - "8138:8138"
-    environment:
-      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
-    depends_on:
-      zipkin:
-        condition: service_healthy  
-      config-server-instance-one:
-        condition: service_healthy
-      discovery-service-instance-one:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy  
-      kafka:
-        condition: service_healthy
-    networks:
-      - healthcare-net
+  # notification-service-instance-one:
+  #   build:
+  #     context: ./notification-service
+  #     dockerfile: Dockerfile
+  #   container_name: notification-service-container
+  #   restart: always
+  #   ports:
+  #     - "8138:8138"
+  #   environment:
+  #     - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+  #   depends_on:
+  #     zipkin:
+  #       condition: service_healthy  
+  #     config-server-instance-one:
+  #       condition: service_healthy
+  #     discovery-service-instance-one:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_healthy  
+  #     kafka:
+  #       condition: service_healthy
+  #   networks:
+  #     - healthcare-net
 
   # document-service-instance-one:
   #   build:
@@ -211,24 +234,24 @@ services:
       retries: 12
       timeout: 3s
 
-  mysql:
-    image: mysql:8
-    container_name: mysql
-    environment:
-      MYSQL_DATABASE: claims
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3306:3306"
-    networks:
-      - healthcare-net
-    volumes:
-      - mysql-data:/var/lib/mysql
-      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      retries: 12
-      timeout: 3s
+  # mysql:
+  #   image: mysql:8
+  #   container_name: mysql
+  #   environment:
+  #     MYSQL_DATABASE: claims
+  #     MYSQL_ROOT_PASSWORD: root
+  #   ports:
+  #     - "3306:3306"
+  #   networks:
+  #     - healthcare-net
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #     - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  #     interval: 5s
+  #     retries: 12
+  #     timeout: 3s
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -282,11 +305,11 @@ services:
   #     interval: 10s
   #     timeout: 5s
   #     retries: 5
-  #     start_period: 15s
+  #     start_period: 120s
   #   volumes:
-  #     - "./localstack_data:/var/lib/localstack"   # persistencia local (ya no /tmp)
-  #     - "./scripts/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh" # inicialización del bucket
-  #     - "/var/run/docker.sock:/var/run/docker.sock"
+  #     - ./localstack_data:/var/lib/localstack   # persistencia local (ya no /tmp)
+  #     - ./scripts/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh # inicialización del bucket
+  #     - /var/run/docker.sock:/var/run/docker.sock
   #   networks:
   #     - healthcare-net
 

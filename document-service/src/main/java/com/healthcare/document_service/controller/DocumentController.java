@@ -1,5 +1,6 @@
 package com.healthcare.document_service.controller;
 
+import com.healthcare.document_service.entity.URLDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -10,7 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.healthcare.document_service.entity.Document;
 import com.healthcare.document_service.service.DocumentService;
@@ -40,6 +44,11 @@ public class DocumentController {
                 .contentType(MediaType.parseMediaType(docInfo.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + docInfo.getName() + "\"")
                 .body(document);
+    }
+
+    @GetMapping("/{id}/url-firmada")
+    public ResponseEntity<URLDto> getPath(@PathVariable String id) throws IOException {
+        return ResponseEntity.ok(documentService.getUrl(id));
     }
 
     @GetMapping

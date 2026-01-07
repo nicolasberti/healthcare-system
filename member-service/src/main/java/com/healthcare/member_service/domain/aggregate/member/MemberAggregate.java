@@ -20,8 +20,8 @@ public class MemberAggregate {
         this.domainEvents = domainEvents;
     }
 
-    public static MemberAggregate createMember(MemberId id, String name, Email email, Age age, Phone phone) {
-        Member member = new Member(id, name, email, age, phone);
+    public static MemberAggregate createMember(MemberId id, String name, String password, Email email, Age age, Phone phone) {
+        Member member = new Member(id, name, password, email, age, phone);
 
         MemberCreated event = new MemberCreated(id.getValue().toString(), name, email.value(), age.value(), phone.value());
         return new MemberAggregate(member, Collections.singletonList(event));

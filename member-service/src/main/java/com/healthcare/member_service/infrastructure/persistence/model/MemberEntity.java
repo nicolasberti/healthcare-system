@@ -23,6 +23,9 @@ public class MemberEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "password")
+    private String password; // TODO: Guardarla encriptada, por ahora se guarda plana.
+
     @Column(name = "email", unique = true)
     private String email;
 

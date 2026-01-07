@@ -2,6 +2,7 @@ package com.healthcare.document_service.service;
 
 import com.healthcare.document_service.config.AwsS3Properties;
 import com.healthcare.document_service.entity.Document;
+import com.healthcare.document_service.entity.URLDto;
 import com.healthcare.document_service.repository.DocumentRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -27,6 +29,32 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final S3Client s3Client;
     private final AwsS3Properties s3Properties;
+    private final S3Presigner s3Presigner;
+    private final AwsS3Properties awsS3Properties;
+
+
+    public URLDto getUrl(String id) {
+
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Document not found"));
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(awsS3Properties.bucket())   // claims ✅
+                .key(document.getPath())            // documents/uuid_file.png
+                .build();
+
+        GetObjectPresignRequest presignRequest =
+                GetObjectPresignRequest.builder()
+                        .signatureDuration(Duration.ofMinutes(10))
+                        .getObjectRequest(getObjectRequest)
+                        .build();
+
+        return new URLDto(
+                s3Presigner.presignGetObject(presignRequest)
+                        .url()
+                        .toString()
+        );
+    }
 
     public Document upload(MultipartFile file) {
         String id = UUID.randomUUID().toString();

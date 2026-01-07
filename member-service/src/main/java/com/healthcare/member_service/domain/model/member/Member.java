@@ -14,6 +14,7 @@ import lombok.*;
 public class Member {
     private MemberId id;
     private String name;
+    private String password;
     private Email email;
     private Age age;
     private Phone phone;

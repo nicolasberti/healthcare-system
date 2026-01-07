@@ -27,7 +27,9 @@ public class MemberService implements MemberUseCase {
     @Override
     public Member createMember(CreateMember createMember) {
         MemberAggregate memberAggregate = MemberAggregate.createMember(
-                new MemberId(), createMember.getName(),
+                new MemberId(), 
+                createMember.getName(), 
+                createMember.getPassword(),
                 new Email(createMember.getEmail()),
                 new Age(createMember.getAge()),
                 new Phone(createMember.getPhone())
