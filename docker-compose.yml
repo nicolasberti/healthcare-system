@@ -76,25 +76,25 @@ services:
       timeout: 3s
       start_period: 120s
 
-  # api-gateway-instance-one:
-  #   build:
-  #     context: ./api-gateway
-  #     dockerfile: Dockerfile
-  #   container_name: api-gateway-container
-  #   restart: always
-  #   ports:
-  #     - "8000:8000"
-  #   environment:  
-  #     - CONFIG_SERVER_URL=http://config-server-instance-one:8888
-  #   depends_on:
-  #     config-server-instance-one:
-  #       condition: service_healthy
-  #     discovery-service-instance-one:
-  #       condition: service_healthy
-  #     zipkin:
-  #       condition: service_healthy  
-  #   networks:
-  #     - healthcare-net
+  api-gateway-instance-one:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway-container
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:  
+      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+    depends_on:
+      config-server-instance-one:
+        condition: service_healthy
+      discovery-service-instance-one:
+        condition: service_healthy
+      zipkin:
+        condition: service_healthy  
+    networks:
+      - healthcare-net
 
   member-service-instance-one:
     build:
