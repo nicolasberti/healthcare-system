@@ -1,8 +1,8 @@
-package com.healthcare.member_service.infrastructure.publisher;
+package com.healthcare.member_service.infrastructure.publisher.kafka;
 
 import com.healthcare.member_service.domain.event.DomainEvent;
 import com.healthcare.member_service.domain.port.out.DomainEventPublisher;
-import com.healthcare.member_service.infrastructure.publisher.mapper.EventMapper;
+import com.healthcare.member_service.infrastructure.publisher.kafka.mapper.EventMapper;
 import io.cloudevents.CloudEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;

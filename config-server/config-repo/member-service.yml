@@ -3,8 +3,8 @@ spring:
     name: member-service
   datasource:
     url: jdbc:postgresql://postgres:5432/members
-    username: postgres
-    password: postgres
+    username: postgres # Agregar AWS Secrets Manager
+    password: postgres # Agregar AWS Secrets Manager
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -18,3 +18,9 @@ server:
 grpc:
   server:
     port: 9090  
+
+aws:
+  endpoint: http://localstack:4566
+  sqs:
+    audit-queue:
+      url: http://localstack:4566/000000000000/audit-queue   

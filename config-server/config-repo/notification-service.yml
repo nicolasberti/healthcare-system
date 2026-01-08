@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:postgresql://postgres:5432/notifications
-    username: postgres
-    password: postgres
+    username: postgres # Agregar AWS Secrets Manager
+    password: postgres # Agregar AWS Secrets Manager
     driver-class-name: org.postgresql.Driver
 
   jpa:

@@ -72,39 +72,15 @@ services:
   #   networks:
   #     - healthcare-net
 
-  # member-service-instance-one:
-  #   build:
-  #     context: ./member-service
-  #     dockerfile: Dockerfile
-  #   container_name: member-service-container
-  #   restart: always
-  #   ports:
-  #     - "8081:8081"
-  #     - "9090:9090"
-  #   environment:
-  #     - CONFIG_SERVER_URL=http://config-server-instance-one:8888
-  #   depends_on:
-  #     config-server-instance-one:
-  #       condition: service_healthy
-  #     discovery-service-instance-one:
-  #       condition: service_healthy
-  #     postgres:
-  #       condition: service_healthy
-  #     kafka:
-  #       condition: service_healthy
-  #     zipkin:
-  #       condition: service_healthy    
-  #   networks:
-  #     - healthcare-net
-
-  security-service:
+  member-service-instance-one:
     build:
-      context: ./security-service
+      context: ./member-service
       dockerfile: Dockerfile
-    container_name: security-service-container
+    container_name: member-service-container
     restart: always
     ports:
-      - "8099:8099"
+      - "8081:8081"
+      - "9090:9090"
     environment:
       - CONFIG_SERVER_URL=http://config-server-instance-one:8888
     depends_on:
@@ -114,13 +90,59 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-      # En caso de que lance error, primero hay que iniciar la DB en Postgres (members)
+      kafka:
+        condition: service_healthy
+      zipkin:
+        condition: service_healthy    
+    networks:
+      - healthcare-net
+
+  # security-service:
+  #   build:
+  #     context: ./security-service
+  #     dockerfile: Dockerfile
+  #   container_name: security-service-container
+  #   restart: always
+  #   ports:
+  #     - "8099:8099"
+  #   environment:
+  #     - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+  #   depends_on:
+  #     config-server-instance-one:
+  #       condition: service_healthy
+  #     discovery-service-instance-one:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_healthy
+  #     # En caso de que lance error, primero hay que iniciar la DB en Postgres (members)
+  #     zipkin:
+  #       condition: service_healthy  
+  #     localstack:
+  #       condition: service_healthy   
+  #   networks:
+  #     - healthcare-net  
+
+  audit-service:
+    build:
+      context: ./audit-service
+      dockerfile: Dockerfile
+    container_name: audit-service-container
+    restart: always
+    ports:
+      - "8091:8091"
+    environment:
+      - CONFIG_SERVER_URL=http://config-server-instance-one:8888
+    depends_on:
+      config-server-instance-one:
+        condition: service_healthy
+      discovery-service-instance-one:
+        condition: service_healthy
       zipkin:
         condition: service_healthy  
       localstack:
         condition: service_healthy   
     networks:
-      - healthcare-net    
+      - healthcare-net        
 
   # claim-service-instance-one:
   #   build:
@@ -231,39 +253,39 @@ services:
   #     retries: 12
   #     timeout: 3s
 
-  # zookeeper:
-  #   image: confluentinc/cp-zookeeper:7.5.0
-  #   container_name: zookeeper
-  #   environment:
-  #     ZOOKEEPER_CLIENT_PORT: 2181
-  #     ZOOKEEPER_TICK_TIME: 2000
-  #   ports:
-  #     - "2181:2181"
-  #   networks:
-  #     - healthcare-net
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - healthcare-net
 
-  # kafka:
-  #   image: confluentinc/cp-kafka:7.5.0
-  #   container_name: kafka
-  #   ports:
-  #     - "9092:9092"
-  #     - "29092:29092"
-  #   environment:
-  #     KAFKA_BROKER_ID: 1
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  #   depends_on:
-  #     - zookeeper
-  #   networks:
-  #     - healthcare-net
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
-  #     interval: 5s
-  #     timeout: 10s
-  #     retries: 12
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    networks:
+      - healthcare-net
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 12
 
   localstack:
     image: localstack/localstack:latest
@@ -271,7 +293,7 @@ services:
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=s3,secretsmanager
+      - SERVICES=s3,secretsmanager,sqs,dynamodb
       - DEBUG=1
       - AWS_DEFAULT_REGION=us-east-1
       - LOCALSTACK_PERSISTENCE=1
@@ -282,9 +304,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test: ["CMD", "awslocal", "s3", "ls"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 20s
+      timeout: 10s
+      retries: 10
     networks:
       - healthcare-net
 

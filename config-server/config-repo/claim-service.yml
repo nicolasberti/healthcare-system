@@ -3,8 +3,8 @@ spring:
     name: claim-service
   datasource:
     url: jdbc:mysql://mysql:3306/claims
-    username: root
-    password: root
+    username: root # Agregar AWS Secrets Manager
+    password: root # Agregar AWS Secrets Manager
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
       hibernate:

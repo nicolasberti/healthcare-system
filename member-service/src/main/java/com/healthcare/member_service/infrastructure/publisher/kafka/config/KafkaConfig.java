@@ -1,4 +1,4 @@
-package com.healthcare.member_service.infrastructure.publisher.config;
+package com.healthcare.member_service.infrastructure.publisher.kafka.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.apache.kafka.clients.producer.ProducerConfig;

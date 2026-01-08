@@ -1,4 +1,4 @@
-package com.healthcare.member_service.infrastructure.publisher.mapper;
+package com.healthcare.member_service.infrastructure.publisher.kafka.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

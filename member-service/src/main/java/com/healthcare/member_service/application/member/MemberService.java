@@ -1,5 +1,6 @@
 package com.healthcare.member_service.application.member;
 
+import com.healthcare.member_service.common.audit.annotation.Auditable;
 import com.healthcare.member_service.common.command.CreateMember;
 import com.healthcare.member_service.domain.aggregate.member.MemberAggregate;
 import com.healthcare.member_service.domain.model.member.Member;
@@ -25,6 +26,7 @@ public class MemberService implements MemberUseCase {
     private final DomainEventPublisher domainEventPublisher;
 
     @Override
+    @Auditable(type = "MEMBER_CREATED")
     public Member createMember(CreateMember createMember) {
         MemberAggregate memberAggregate = MemberAggregate.createMember(
                 new MemberId(), 
