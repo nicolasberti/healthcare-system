@@ -1,5 +1,8 @@
 # healthcare-system
- 
+
+Arquitectura:
+![Arquitectura del sistema](arquitectura.jpg)
+
 Stack:
 - Spring Boot
 - Java 21
