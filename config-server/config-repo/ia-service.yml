@@ -1,0 +1,22 @@
+spring:
+  ai:
+    openai:
+      api-key: API KEY OPEN ROUTER. MODIFICAR
+      base_url: https://openrouter.ai/api
+      chat:
+        options:
+          model: google/gemini-2.0-flash-exp:free # Esto tiene que ser un modelo multi modal para que pueda recibir base 64
+  
+server:
+  port: 8065
+
+logging:
+  level:
+    com.healthcare.notification_service.service.MemberContactService: DEBUG
+    io.github.resilience4j: DEBUG
+    net.devh.boot.grpc: WARN      
+
+aws:
+  sqs:
+    queue-name: documentos-clasificacion-queue
+    poll-delay-ms: 5000

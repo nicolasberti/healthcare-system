@@ -1,0 +1,180 @@
+Phase 1: Basic Microservices
+Services to Implement:
+member-service (Port: 8081)
+Entities: Member (id, name, email, age)
+
+POST /api/members - Create member
+GET /api/members/{id} - Get member
+GET /api/members - List all members
+
+Simple Logic: Only stores policy records, no validation.
+
+claim-service (Port: 8083)
+Entities: Claim (id, policyId, amount, status)
+
+POST /api/claims - Create claim
+GET /api/claims/{id} - Get claim
+PUT /api/claims/{id}/status - Update status
+
+Simple Logic: Basic CRUD, no calculations.
+Deliverable: Three independent Spring Boot apps with minimal logic.
+
+Phase 2: Service Discovery & API Gateway
+discovery-service (Port: 8761)
+Technology: Netflix Eureka Server
+
+api-gateway (Port: 8080)
+Technology: Spring Cloud Gateway
+
+Tasks:
+Add Eureka client to all services
+All services register automatically
+Test accessing services through gateway
+
+Deliverable: Gateway routing to services via Eureka. 
+
+Phase 3: Centralized Configuration
+config-service (Port: 8888)
+Technology: Spring Cloud Config Server
+Git Repository Structure:
+config-repo/
+  ├── application.yml          # Shared config
+  ├── member-service.yml
+  ├── claim-service.yml
+  └── gateway-service.yml
+
+Move These to Config:
+Database URLs
+Server ports
+Eureka URLs
+Simple properties (e.g., app.message=Hello)
+
+Phase 4: Asynchronous Communication
+notification-service
+Purpose: Listen to events and act accordingly
+
+Phase 5: File Upload (Single Service)
+document-service (Port: 8085)
+Purpose: Handle file uploads
+Entities: Document (id, filename, fileType, uploadDate, filePath)
+Endpoints:
+
+POST /api/documents/upload - Upload file (MultipartFile)
+GET /api/documents/{id}/download - Download file
+GET /api/documents - List all documents
+
+Integration: claim-service calls document-service to attach files to claims
+
+Phase 6: Distributed Tracing
+Zipkin Setup (Port: 9411)
+
+Tasks:
+Add Spring Cloud Sleuth to all services
+Configure Zipkin URL
+Make a request through gateway → member-service → policy-service
+View trace in Zipkin UI
+
+ Phase 7: Centralized Security
+security-service
+Technology: Spring Security + JWT
+
+Simple Implementation:
+Single endpoint: POST /auth/login (username/password)
+Returns JWT token
+Hardcoded users: admin/admin, user/user
+JWT Token Contains: username, role (ADMIN/USER)
+
+Update API Gateway
+Add JWT validation filter:
+Extract token from Authorization header
+Validate token
+Forward request with user info in headers
+
+Phase 8: API Documentation
+Technology: SpringDoc OpenAPI
+
+Tasks:
+Add dependency to all services
+Add annotations to controllers
+Configure in gateway to aggregate all service docs
+
+Include:
+Request/Response examples
+Error codes
+Authentication requirements
+
+Phase 9: Dockerization
+
+Task:
+Create docker-compose.yml
+
+Phase 10: Health Checks & Resilience
+
+Tasks:
+Add  Spring Boot Actuator to all services
+Health Checks: Database connectivity, RabbitMQ/Kafka connectivity, Disk space
+Access: http://localhost:assignedPort/actuator/health
+
+Phase 11: Circuit Breaker (Resilience4j)
+
+Tasks:
+Add to policy-service when calling member-service:
+
+Example:
+@CircuitBreaker(name = "memberService", fallbackMethod = "memberFallback")
+public Member getMember(String memberId) {
+    return memberServiceClient.getMember(memberId);
+}
+
+public Member memberFallback(String memberId, Exception e) {
+    return new Member(memberId, "Unknown", "unavailable@email.com", 0);
+}
+
+--------------------------------
+Segunda parte
+Fase 1: Integración S3 para Almacenamiento de Documentos
+Migrar document-service a AWS S3
+Actual: Archivos guardados en carpeta /uploads
+Nuevo: Archivos almacenados en bucket S3 (LocalStack)
+
+Tareas:
+Crear Bucket S3 (vía AWS CLI + LocalStack)
+Actualizar document-service
+Nuevos Endpoints
+POST /api/documentos/subir - Subir a S3
+GET /api/documentos/{key}/descargar - Descargar desde S3
+GET /api/documentos/{key}/url-firmada - Obtener URL temporal (15 min expiración)
+Categorías de Documentos con Prefijos S3
+Fase 2: AWS Secrets Manager para Credenciales
+Almacenar datos sensibles en AWS Secrets Manager (LocalStack)
+Actual: Contraseñas de base de datos en archivos de configuración
+Nuevo: Credenciales en Secrets Manager
+
+Tareas:
+Crear Secretos en LocalStack
+Actualizar security-service
+Rotar Secretos (Simulación)
+Fase 3: DynamoDB para Logs de Auditoría
+Agregar trazabilidad de auditoría usando DynamoDB (LocalStack)
+
+Tareas:
+Crear Tabla DynamoDB
+Crear audit-service (Puerto: 8091)
+Agregar Interceptor AOP para Auto-Auditoría
+Consultar Logs de Auditoría
+
+Fase 4: IA - Clasificación de Documentos Médicos
+Usar IA para clasificar documentos médicos subidos
+Tecnología: Spring AI + Ollama (alternativa local pesada) o conexión a algún modelo gratuito
+Tareas:
+Instalar Ollama o crear keys de desarrollo en cuenta de proveedor de modelos.
+Crear ia-service
+Endpoints
+  POST /api/ia/clasificar/{claveDocumento} - Clasificar documento
+  GET /api/ia/clasificacion/{claveDocumento} - Obtener resultado de clasificación
+Integración con document-service (cuando se sube un documento, disparar automáticamente la clasificación)
+
+Fase 5: IA - Recomendador de Planes de Seguro
+Asistente de IA para recomendar planes según perfil del miembro (analizar edad, historial médico y preferencias para sugerir el mejor plan)
+Tareas:
+Agregar nuevo controller con lógica necesaria al ia-service para realizar las recomendaciones
