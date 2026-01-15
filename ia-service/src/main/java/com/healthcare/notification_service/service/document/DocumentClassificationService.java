@@ -13,9 +13,10 @@ public class DocumentClassificationService {
     private static final String PROMPT_TEMPLATE = """
         Clasificá el siguiente documento médico en UNA sola categoría:
         - DOCUMENTO GENERAL
+        - CREDENCIAL
         - RECETA
         - ESTUDIO MEDICO
-        - SIN CLASIFICACION
+        - OTROS
         
         Tené en cuenta que el texto puede provenir de OCR y contener errores.
         

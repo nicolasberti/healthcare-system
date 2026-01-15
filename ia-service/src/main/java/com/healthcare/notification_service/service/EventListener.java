@@ -1,7 +1,9 @@
 package com.healthcare.notification_service.service;
 
 import java.util.List;
-
+import java.util.Map;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,9 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 @RequiredArgsConstructor
 public class EventListener {
     private final SqsClient sqsClient;
+    private final S3Service s3Service;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${aws.sqs.queue-name}")
     private String queueName;
@@ -35,6 +40,7 @@ public class EventListener {
         ).queueUrl();
     }
 
+    // Los eventos son disparados por S3 Event Notification al momento de subir un archivo. Siguen el formato { "bucket": "..nombre del bucket..", "key": "..key del documento" }
     @Scheduled(fixedDelayString = "${aws.sqs.poll-delay-ms:5000}")
     public void poll() {
 
@@ -69,10 +75,28 @@ public class EventListener {
                 message.messageId(),
                 message.body());
 
-        // Acá debería clasificar al documento según el bucket y la key
-        // Posterior a eso, debería:
-        // 1. Enviar un mensaje a una cola SQS y que el document-service esté escuchando para actualizar la clasificación
-        // 2. Conectarse a la DB donde se almacenan los metadatos de los documentos y actualizar la clasificación
+        try {
+            Map<String, String> payload = objectMapper.readValue(
+                    message.body(),
+                    new TypeReference<>() {}
+            );
+
+            String bucket = payload.get("bucket");
+            String key = payload.get("key");
+
+            if (bucket == null || key == null) {
+                throw new IllegalArgumentException("Mensaje inválido: bucket o key faltante");
+            }
+            String classification = s3Service.classify(bucket, key);
+            log.info("Se clasificó automáticamente un documento en S3. [{}, {}, {}]", bucket, key, classification);
+            /*
+                Una vez obtenida la clasificación:
+                1. Guardar en los metadatos del documento (accediendo directamente a la DB)
+                2. Desacoplar el proceso y enviar un mensaje mediante otra SQS a document-service y actualice los metadatos del documento.
+             */
+        } catch (Exception e) {
+            throw new RuntimeException("Error procesando mensaje SQS", e);
+        }
     }
 
     private void deleteMessage(Message message) {
