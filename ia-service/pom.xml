@@ -32,6 +32,14 @@
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
 	<dependencies>
+
+        <dependency>
+            <groupId>dev.toonformat</groupId>
+            <artifactId>jtoon</artifactId>
+            <version>1.0.8</version>
+            <scope>compile</scope>
+        </dependency>
+
 		<dependency>
 			<groupId>org.imgscalr</groupId>
 			<artifactId>imgscalr-lib</artifactId>

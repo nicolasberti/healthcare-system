@@ -1,8 +1,11 @@
 package com.healthcare.notification_service.service;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,8 +43,8 @@ public class EventListener {
         ).queueUrl();
     }
 
-    // Los eventos son disparados por S3 Event Notification al momento de subir un archivo. Siguen el formato { "bucket": "..nombre del bucket..", "key": "..key del documento" }
-    @Scheduled(fixedDelayString = "${aws.sqs.poll-delay-ms:5000}")
+    // Los eventos son disparados por S3 Event Notification al momento de subir un archivo. El formato es el definido por AWS. Consultar docu.
+    //@Scheduled(fixedDelayString = "${aws.sqs.poll-delay-ms:5000}")
     public void poll() {
 
         ReceiveMessageRequest request = ReceiveMessageRequest.builder()
@@ -65,7 +68,7 @@ public class EventListener {
 
             } catch (Exception e) {
                 log.error("Error procesando mensaje {}", message.messageId(), e);
-                // No se borra → retry automático
+                // No se borra -> retry automático
             }
         }
     }
@@ -76,28 +79,53 @@ public class EventListener {
                 message.body());
 
         try {
-            Map<String, String> payload = objectMapper.readValue(
-                    message.body(),
-                    new TypeReference<>() {}
-            );
+            JsonNode root = objectMapper.readTree(message.body());
 
-            String bucket = payload.get("bucket");
-            String key = payload.get("key");
+            JsonNode records = root.get("Records");
+            if (records == null || !records.isArray() || records.isEmpty()) {
+                throw new IllegalArgumentException("Mensaje inválido: no contiene Records");
+            }
+
+            // En general viene 1 solo record, pero S3 siempre manda array
+            JsonNode record = records.get(0);
+
+            String bucket = record
+                    .path("s3")
+                    .path("bucket")
+                    .path("name")
+                    .asText(null);
+
+            String key = record
+                    .path("s3")
+                    .path("object")
+                    .path("key")
+                    .asText(null);
 
             if (bucket == null || key == null) {
                 throw new IllegalArgumentException("Mensaje inválido: bucket o key faltante");
             }
+
+            // IMPORTANTE: el key puede venir URL-encoded
+            key = URLDecoder.decode(key, StandardCharsets.UTF_8);
+
             String classification = s3Service.classify(bucket, key);
-            log.info("Se clasificó automáticamente un documento en S3. [{}, {}, {}]", bucket, key, classification);
-            /*
+
+            log.info(
+                    "Se clasificó automáticamente un documento en S3. [{}, {}, {}]",
+                    bucket, key, classification
+            );
+
+            /* TODO:
                 Una vez obtenida la clasificación:
                 1. Guardar en los metadatos del documento (accediendo directamente a la DB)
-                2. Desacoplar el proceso y enviar un mensaje mediante otra SQS a document-service y actualice los metadatos del documento.
-             */
+                2. Desacoplar el proceso y enviar un mensaje mediante otra SQS a document-service
+            */
+           
         } catch (Exception e) {
             throw new RuntimeException("Error procesando mensaje SQS", e);
         }
     }
+
 
     private void deleteMessage(Message message) {
         sqsClient.deleteMessage(DeleteMessageRequest.builder()
