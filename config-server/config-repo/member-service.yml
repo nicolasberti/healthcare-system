@@ -17,10 +17,14 @@ server:
 
 grpc:
   server:
-    port: 9090  
+    port: 9090
+
+ia:
+  recommendation:
+    url: http://ia-service:8065/api/recommendations
 
 aws:
   endpoint: http://localstack:4566
   sqs:
     audit-queue:
-      url: http://localstack:4566/000000000000/audit-queue   
+      url: http://localstack:4566/000000000000/audit-queue
