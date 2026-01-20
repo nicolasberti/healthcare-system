@@ -1,6 +1,7 @@
 package com.healthcare.document_service.controller;
 
 import com.healthcare.document_service.entity.URLDto;
+import com.healthcare.document_service.entity.UploadUrlRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -30,13 +31,28 @@ public class DocumentController {
         this.resource = resource;
     }
 
+    @PostMapping("/upload-url")
+    public ResponseEntity<URLDto> getUploadUrl(@RequestBody UploadUrlRequest request) {
+        URLDto uploadUrl = documentService.getUploadUrl(request.getFileName(), request.getContentType());
+        return ResponseEntity.ok(uploadUrl);
+    }
+
+    @GetMapping("/{id}/download-url")
+    public ResponseEntity<URLDto> getDownloadUrl(@PathVariable String id) {
+        URLDto downloadUrl = documentService.getDownloadUrl(id);
+        return ResponseEntity.ok(downloadUrl);
+    }
+
+    // Mantener endpoints antiguos para compatibilidad (opcional - pueden ser eliminados)
     @PostMapping("/upload")
+    @Deprecated
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) {
         Document document = documentService.upload(file);
         return ResponseEntity.ok(document.getId());
     }
 
     @GetMapping("/{id}/download")
+    @Deprecated
     public ResponseEntity<byte[]> download(@PathVariable String id) throws IOException {
         byte[] document = documentService.download(id);
         Document docInfo = documentService.getDocumentInfo(id);
@@ -47,6 +63,7 @@ public class DocumentController {
     }
 
     @GetMapping("/{id}/url-firmada")
+    @Deprecated
     public ResponseEntity<URLDto> getPath(@PathVariable String id) throws IOException {
         return ResponseEntity.ok(documentService.getUrl(id));
     }

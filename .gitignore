@@ -23,3 +23,16 @@
 hs_err_pid*
 replay_pid*
 ia-service/src/main/resources/application.yml
+document-service/.agent/skills/aws-s3-upload/SKILL.md
+document-service/.agent/skills/aws-sqs-producer/SKILL.md
+document-service/.agent/skills/code-standards/SKILL.md
+document-service/.agent/skills/create-spring-endpoint/SKILL.md
+document-service/.agent/skills/error-handling-standars/SKILL.md
+document-service/.opencode/skills/aws-s3-upload/SKILL.md
+document-service/.opencode/skills/aws-sqs-producer/SKILL.md
+document-service/.opencode/skills/code-standards/SKILL.md
+document-service/.opencode/skills/create-spring-endpoint/SKILL.md
+document-service/.opencode/skills/error-handling-standars/SKILL.md
+document-service/AGENTS.md
+document-service/PRESIGNED_URLS.md
+ia-service/AGENTS.md

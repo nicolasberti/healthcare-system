@@ -17,6 +17,8 @@ import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -32,15 +34,13 @@ public class DocumentService {
     private final S3Presigner s3Presigner;
     private final AwsS3Properties awsS3Properties;
 
-
-    public URLDto getUrl(String id) {
-
+    public URLDto getDownloadUrl(String id) {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Document not found"));
 
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(awsS3Properties.bucket())   // claims ✅
-                .key(document.getPath())            // documents/uuid_file.png
+                .bucket(awsS3Properties.bucket())
+                .key(document.getPath())
                 .build();
 
         GetObjectPresignRequest presignRequest =
@@ -54,6 +54,40 @@ public class DocumentService {
                         .url()
                         .toString()
         );
+    }
+
+    public URLDto getUploadUrl(String fileName, String contentType) {
+        String id = UUID.randomUUID().toString();
+        String key = "documents/" + id + "_" + fileName;
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(awsS3Properties.bucket())
+                .key(key)
+                .contentType(contentType)
+                .build();
+
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(10))
+                .putObjectRequest(putObjectRequest)
+                .build();
+
+        PresignedPutObjectRequest presignedPutObject = s3Presigner.presignPutObject(presignRequest);
+
+        // Create document metadata in advance
+        Document document = Document.builder()
+                .id(id)
+                .name(fileName)
+                .extension(getFileExtensionFromName(fileName))
+                .contentType(contentType)
+                .path(key)
+                .build();
+        documentRepository.save(document);
+
+        return new URLDto(presignedPutObject.url().toString());
+    }
+
+    public URLDto getUrl(String id) {
+        return getDownloadUrl(id);
     }
 
     public Document upload(MultipartFile file) {
@@ -95,6 +129,19 @@ public class DocumentService {
         int lastDotIndex = originalFileName.lastIndexOf(".");
         if (lastDotIndex > 0) {
             return originalFileName.substring(lastDotIndex + 1).toLowerCase();
+        }
+
+        return "";
+    }
+
+    private String getFileExtensionFromName(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return "";
+        }
+
+        int lastDotIndex = fileName.lastIndexOf(".");
+        if (lastDotIndex > 0) {
+            return fileName.substring(lastDotIndex + 1).toLowerCase();
         }
 
         return "";

@@ -16,6 +16,11 @@ import java.util.Optional;
 public class AwsS3Config {
 
     @Bean
+    public S3Client s3Client() {
+        S3ClientBuilder
+    }
+
+    @Bean
     public AwsCredentialsProvider awsCredentialsProvider(AwsS3Properties props) {
 
         if (props.accessKey() != null && props.secretKey() != null) {
