@@ -362,10 +362,4 @@ Este proyecto sigue las convenciones definidas en `AGENTS.md`:
 - Infrastructure layer encapsulada
 - Naming conventions consistentes
 
-## License
-
-[Specified License - e.g., MIT License]
-
-## Contact
-
-Para soporte o preguntas, contactar al equipo de desarrollo.
+*Documentación generada con Inteligencia Artificial. (OpenCode + GLM 4.7)*
