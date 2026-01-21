@@ -41,9 +41,9 @@ public class RecommendationService {
         AVAILABLE_PLANS.add(goldPlan);
     }
 
-    public RecommendationService(MemberRepository memberRepository) {
+    public RecommendationService(MemberRepository memberRepository, RestTemplate restTemplate) {
         this.memberRepository = memberRepository;
-        this.restTemplate = new RestTemplate();
+        this.restTemplate = restTemplate;
     }
 
     public RecommendationResponse getRecommendationByMemberId(String memberId) {

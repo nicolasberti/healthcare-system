@@ -17,11 +17,15 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api/members")
 public class MemberRestController implements MemberController {
     private final MemberUseCase memberUseCase;
     private final RecommendationService recommendationService;
+
+    public MemberRestController(MemberUseCase memberUseCase, RecommendationService recommendationService) {
+        this.memberUseCase = memberUseCase;
+        this.recommendationService = recommendationService;
+    }
 
     @GetMapping("/{id}")
     @Override
